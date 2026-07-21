@@ -14,6 +14,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Spell Check
+        uses: crate-ci/typos@v1
+
       - uses: pnpm/action-setup@v6
 
       - uses: actions/setup-node@v7
