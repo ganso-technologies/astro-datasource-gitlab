@@ -1,18 +1,20 @@
-# Publishes the package to npm.
+# Publishes the package to npm via Trusted Publishing (OIDC).
 #
-# Runs when you publish a GitHub Release (Releases → Draft a new release →
-# create a tag like v0.2.0 → Publish), or manually via the Actions tab
-# ("Run workflow").
+# No npm token is stored in GitHub: the workflow proves its identity to npm
+# through a GitHub OIDC token (`id-token: write`), and npm accepts the publish
+# because this repo/workflow is registered as a trusted publisher for the
+# package. Provenance attestations are generated automatically.
 #
-# One-time setup:
-#   1. Create the npm org "gansotech" and log in at npmjs.com.
-#   2. npmjs.com → Access Tokens → Generate → "Automation" token.
-#   3. GitHub repo → Settings → Secrets and variables → Actions →
-#      New repository secret → name it NPM_TOKEN, paste the token.
+# One-time setup on npmjs.com (package or org settings → Trusted Publisher):
+#   Publisher:         GitHub Actions
+#   Organization/user: ganso-technologies        (the GitHub org, not the npm org)
+#   Repository:        astro-datasource-gitlab
+#   Workflow filename: publish.yml
+#   Environment:       (leave empty)
 #
-# Each release must use a new version: bump "version" in package.json,
-# commit, then create the release. npm rejects re-publishing an existing
-# version.
+# Runs when you publish a GitHub Release, or manually via Actions → Run
+# workflow. Each release must use a new version: bump "version" in
+# package.json first — npm rejects re-publishing an existing version.
 
 name: Publish to npm
 
@@ -20,6 +22,10 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # required for npm Trusted Publishing (OIDC)
 
 jobs:
   publish:
@@ -33,12 +39,10 @@ jobs:
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
-          cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
       - run: pnpm build
 
+      # Authenticates via OIDC — no NPM_TOKEN involved.
       - run: pnpm publish --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
