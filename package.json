@@ -41,6 +41,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsc -p tsconfig.json --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo \"No linter configured yet\"",
     "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
