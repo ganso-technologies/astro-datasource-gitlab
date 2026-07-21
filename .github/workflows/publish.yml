@@ -1,0 +1,44 @@
+# Publishes the package to npm.
+#
+# Runs when you publish a GitHub Release (Releases → Draft a new release →
+# create a tag like v0.2.0 → Publish), or manually via the Actions tab
+# ("Run workflow").
+#
+# One-time setup:
+#   1. Create the npm org "gansotech" and log in at npmjs.com.
+#   2. npmjs.com → Access Tokens → Generate → "Automation" token.
+#   3. GitHub repo → Settings → Secrets and variables → Actions →
+#      New repository secret → name it NPM_TOKEN, paste the token.
+#
+# Each release must use a new version: bump "version" in package.json,
+# commit, then create the release. npm rejects re-publishing an existing
+# version.
+
+name: Publish to npm
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm build
+
+      - run: pnpm publish --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -1,0 +1,5 @@
+# pnpm settings for this single-package repo.
+# esbuild (a transitive dependency of astro) ships a postinstall build script
+# that pnpm requires to be approved explicitly.
+allowBuilds:
+  esbuild: true
