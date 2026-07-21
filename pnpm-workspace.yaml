@@ -3,3 +3,4 @@
 # that pnpm requires to be approved explicitly.
 allowBuilds:
   esbuild: true
+minimumReleaseAge: 0
